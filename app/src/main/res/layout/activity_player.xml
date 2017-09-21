@@ -1,0 +1,31 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#231F20">
+
+    <ImageView
+        android:layout_weight="1"
+        android:id="@+id/cover_art"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="top"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop" />
+
+    <View
+        android:background="@android:drawable/divider_horizontal_dark"
+        android:layout_width="match_parent"
+        android:layout_height="1dp" />
+
+    <FrameLayout
+        android:background="#231F20"
+        android:layout_gravity="bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <include layout="@layout/buttons" />
+
+    </FrameLayout>
+
+</LinearLayout>
