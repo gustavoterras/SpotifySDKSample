@@ -1,6 +1,6 @@
 # Spotify SDK
 
-### Esta prova de conceito, está sendo desenvolvida para levantar todas as possíveis funcionálidades úteis para o desenvolvimento do aplicativo para a YouTuber [Ágata Terras](https://www.youtube.com/channel/UCHZSi8xsLHDor_FQjhgwMoA).
+### Esta prova de conceito, foi desenvolvida para levantar todas as possíveis funcionálidades e limitações do Android-SDK disponibilizada pelo Spotify [Spotify Developer Android SDK (https://developer.spotify.com/technologies/spotify-android-sdk/).
 
 > Login com Spotify.
 
