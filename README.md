@@ -13,7 +13,7 @@
 ### Imagens do Projeto
 
 > Login
-<img src="https://github.com/gustavoterras/SpotifySDKSample/blob/master/images/img1.png" width="300">
+<img src="https://github.com/gustavoterras/SpotifySDKSample/blob/master/images/img_01.png" width="300">
 
 > Player
-<img src="https://github.com/gustavoterras/SpotifySDKSample/blob/master/images/img2.png" width="300">
+<img src="https://github.com/gustavoterras/SpotifySDKSample/blob/master/images/img_02.png" width="300">
