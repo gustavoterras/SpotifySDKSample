@@ -29,6 +29,12 @@ import android.graphics.Canvas;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.transition.Scene;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
@@ -37,10 +43,13 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.infoterras.spotifysampleapp.adapter.TrackAdapter;
+import com.infoterras.spotifysampleapp.components.CircularTransition;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -58,8 +67,19 @@ import com.spotify.sdk.android.player.SpotifyPlayer;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
+import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
+
+import kaaes.spotify.webapi.android.SpotifyApi;
+import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.TracksPager;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 public class MainActivity extends Activity implements
         Player.NotificationCallback, ConnectionStateCallback {
@@ -129,9 +149,15 @@ public class MainActivity extends Activity implements
      * Used to log messages to a {@link android.widget.TextView} in this activity.
      */
 
+    private SpotifyApi api;
+
+    private TrackAdapter adapter;
+
     private Metadata mMetadata;
 
     private Scene playerScene;
+
+    private Scene searchScene;
 
     private Scene loginScene;
 
@@ -163,6 +189,7 @@ public class MainActivity extends Activity implements
         ViewGroup container = findViewById(R.id.container);
 
         loginScene = Scene.getSceneForLayout(container, R.layout.activity_login, this);
+        searchScene = Scene.getSceneForLayout(container, R.layout.activity_search, this);
         playerScene = Scene.getSceneForLayout(container, R.layout.activity_player, this);
 
         updateView();
@@ -195,7 +222,49 @@ public class MainActivity extends Activity implements
         }
     }
 
+    private TextWatcher searchMusic = new TextWatcher() {
+
+        Timer timer;
+
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            if (timer != null) {
+                timer.cancel();
+            }
+        }
+
+        @Override
+        public void afterTextChanged(final Editable editable) {
+            timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    api.getService().searchTracks(editable.toString(), new Callback<TracksPager>() {
+                        @Override
+                        public void success(TracksPager tracksPager, Response response) {
+                            if(adapter != null)
+                                adapter.setTrackList(tracksPager.tracks.items);
+                        }
+
+                        @Override
+                        public void failure(RetrofitError error) {
+                            Toast.makeText(MainActivity.this, "failure :/", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }, 1000); //
+        }
+    };
+
     private void changeScene(boolean loggedIn) {
+
+        if(loggedIn && playerScene.getSceneRoot().hasFocus()) return;
+
         Transition transition = TransitionInflater.from(this).inflateTransition(android.R.transition.fade);
         TransitionManager.go(loggedIn ? playerScene : loginScene, transition);
     }
@@ -287,6 +356,11 @@ public class MainActivity extends Activity implements
         } else {
             mPlayer.login(authResponse.getAccessToken());
         }
+
+        if(api == null)
+            api = new SpotifyApi();
+
+        api.setAccessToken(authResponse.getAccessToken());
     }
 
     //  _   _ ___   _____                 _
@@ -349,6 +423,39 @@ public class MainActivity extends Activity implements
 
     private boolean isLoggedIn() {
         return mPlayer != null && mPlayer.isLoggedIn();
+    }
+
+    public void onSearchButtonClicked(View view) {
+        Transition transition = new CircularTransition();
+        TransitionManager.go(searchScene, transition);
+
+        ((EditText) findViewById(R.id.edt_search)).addTextChangedListener(searchMusic);
+
+        RecyclerView recyclerView = findViewById(R.id.rv);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        adapter = new TrackAdapter(new ArrayList<Track>());
+        adapter.setOnClick(new TrackAdapter.OnClick() {
+            @Override
+            public void click(Track track) {
+                mPlayer.playUri(mOperationCallback, track.uri, 0, 0);
+                onCloseSearchButtonClicked(null);
+            }
+        });
+
+        recyclerView.setAdapter(adapter);
+
+        recyclerView.addItemDecoration(
+                new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+    }
+
+    public void onCloseSearchButtonClicked(View view) {
+        Transition transition = TransitionInflater.from(this).inflateTransition(android.R.transition.fade);
+        TransitionManager.go(playerScene, transition);
+
+        updateView();
     }
 
     public void onLoginButtonClicked(View view) {

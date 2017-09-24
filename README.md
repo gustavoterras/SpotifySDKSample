@@ -17,3 +17,6 @@
 
 > Player
 <img src="https://github.com/gustavoterras/SpotifySDKSample/blob/master/images/img_02.png" width="300">
+
+> Search
+<img src="https://github.com/gustavoterras/SpotifySDKSample/blob/master/images/img_03.png" width="300">
