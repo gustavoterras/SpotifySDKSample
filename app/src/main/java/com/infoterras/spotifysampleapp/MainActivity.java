@@ -74,7 +74,6 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
-import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.TracksPager;
 import retrofit.Callback;
@@ -395,7 +394,7 @@ public class MainActivity extends Activity implements
                 );
                 ((TextView) findViewById(R.id.metadata)).setText(mMetadata.contextName + "\n" + mMetadata.currentTrack.name + " - " + mMetadata.currentTrack.artistName + durationStr);
 
-                Picasso.with(this)
+                Picasso.get()
                         .load(mMetadata.currentTrack.albumCoverWebUrl)
                         .transform(new Transformation() {
                             @Override
